@@ -1,9 +1,10 @@
+import Calendar from './Calendar';
 import './index.css';
 
 function App() {
   return (
     <div className="App">
-      <p>Hello World!</p>
+      <Calendar />
     </div>
   );
 }
