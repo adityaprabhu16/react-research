@@ -4,3 +4,7 @@ A collection of react tools, concepts, short demos, and lessons I've been curati
 
 Course Details here:
 https://fullstackopen.com/en/part0/fundamentals_of_web_apps#exercises-0-1-0-6
+
+
+Problems I'll plan to solve:
+ - 
