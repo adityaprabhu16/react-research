@@ -33,11 +33,19 @@ function Calendar() {
     //Prompt browser API: opens a modal, with a prompt, and returns user input as a string.
     function editEvent(id) {
         const title = prompt("New title?");
+        const startTime = prompt("New start date?");
+        const endTime = prompt("New end date?");
         //if there is content in the title:
-        if(title.trim()) {
+        if(title && title.trim()) {
             manager.editEvent(id, { title });
-            setEvents(manager.getEvents());
         }
+        if (startTime && startTime.trim()) {
+            manager.editEvent(id, { startTime });
+        }
+        if (endTime && endTime.trim()) {
+            manager.editEvent(id, { endTime });
+        }
+        setEvents(manager.getEvents());
     }
 
     //return a fragmented element.
