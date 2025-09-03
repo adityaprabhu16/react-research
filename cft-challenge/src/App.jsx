@@ -1,6 +1,41 @@
 import { useEffect, useState } from "react"
 import './index.css';
 
+/*
+Query selector to match this pattern:
+https://tns4lpgmziiypnxxzel5ss5nyu0nftol.lambda-url.us-east-1.on.aws/ramp-challenge-instructions/
+
+<section data-id="92*">
+  <article data-class="*45">
+    <div data-tag="*78*">
+      <b class="ref" value="VALID_CHARACTER"></b>
+    </div>
+  </article>
+</section>
+
+const myStr = "";
+
+const sections = document.querySelectorAll('section[data-id^=92]')
+
+//recall hasAttribute and getAttribute! 
+
+Array.from(sections).forEach((section) => {
+  const articles = section.querySelectorAll('article['data-class$=45']);
+  articles.forEach((article) => {
+    const divs = article.querySelectorAll('div[data-tag*=78')
+    divs.forEach((div) => {
+      const bTag = div.querySelector('.ref')
+      if (bTag.hasAttribute('value')) {
+         myStr += bTag.getAttribute['value']
+      }
+    })
+  })
+})
+
+
+
+*/
+
 function App() {
   const [flag, setFlag] = useState(null); 
   const [error, setError] = useState(null);
