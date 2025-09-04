@@ -22,7 +22,7 @@ const sections = document.querySelectorAll('section[data-id^=92]')
 Array.from(sections).forEach((section) => {
   const articles = section.querySelectorAll('article['data-class$=45']);
   articles.forEach((article) => {
-    const divs = article.querySelectorAll('div[data-tag*=78')
+    const divs = article.querySelectorAll('div[data-tag*=78]')
     divs.forEach((div) => {
       const bTag = div.querySelector('.ref')
       if (bTag.hasAttribute('value')) {
