@@ -38,4 +38,4 @@ class TodosManager {
 }
 
 //export default TodosManager;
-module.exports = {TodosManager};
+module.exports = { TodosManager };
