@@ -4,7 +4,7 @@ import TodosManager from './TodosManager';
 
 import './index.css';
 
-const todosManager = TodosManager();
+const todosManager = new TodosManager();
 
 function Todos() {
   const [todos, setTodos] = useState(todosManager.getTodos())
@@ -26,18 +26,14 @@ function Todos() {
     //we can naturally destructure by index:
     //const updatedTodos = todos.filter((element, index) => idx !== index);
     todosManager.deleteTodo(idx);
-    setTodos(todosManager.getTodos); 
+    setTodos(todosManager.getTodos()); 
   }
 
   function updateTodo(idx) {
-    const newTitle = prompt("What's your new title?");
-    if(newTitle && newTitle.trim()) {
-      const updatedTodos = todos.map((element, index) => (
-        //ternary operator:
-         index === idx ? newTitle : element
-      ));
-
-      setTodos(updatedTodos);
+    const title = prompt("What's your new title?");
+    if(title && title.trim()) {
+      todosManager.updateTodo(idx, {title})
+      setTodos(todosManager.getTodos());
     }
   }
 
@@ -52,10 +48,10 @@ function Todos() {
         {
           todos.map((todo, index) => (
             <li key={index}>
-              <span>{todo}</span>
+              <span>{todo.title}</span>
               {/*So the button doesn't click on load re-renders*/}
-              <button onClick={() => deleteTodo(index)}>X</button>
-              <button onClick={() => updateTodo(index)}>Update</button>
+              <button onClick={() => deleteTodo(todo.id)}>X</button>
+              <button onClick={() => updateTodo(todo.id)}>Update</button>
             </li>
           ))
         }

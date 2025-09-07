@@ -37,4 +37,5 @@ class TodosManager {
     }
 }
 
-export default TodosManager;
+//export default TodosManager;
+module.exports = {TodosManager};
