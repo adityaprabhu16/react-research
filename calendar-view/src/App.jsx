@@ -19,11 +19,24 @@ function App() {
     return `${hourValue} ${hourSuffix}`;
   }
 
-  const prefillForm = (h) => {
+  //for a potentially new entry that we're about to add. 
+  const prefillNew = (h) => {
     setEditingId(null); //we aren't editing an existing event
     setFormStart(h)
     setFormEnd(h + 1 >= 24 ? 24 : h + 1); //one more hour above.
     setFormName("");
+  }
+
+  const prefillExisting = (evt) => {
+    setEditingId(evt.id);
+    setFormStart(evt.start);
+    setFormEnd(evt.end);
+    setFormName(evt.name);
+  }
+
+  //
+  const updateForm = (evt) => {
+
   }
 
   const clearForm = () => {
@@ -31,6 +44,14 @@ function App() {
     setFormStart("");
     setFormEnd("");
     setFormName("");
+  }
+
+  const updateEvent = (evt) => {
+
+  }
+
+  const deleteEvent = () => {
+
   }
 
   const today = new Date();
@@ -51,26 +72,11 @@ function App() {
       {/*Presume we want today's date?*/}
       {/*Todo: we need to address the form inputs here.*/}
       <h1>{formattedDate}</h1>
+
       <div className="inputs">
-        <input 
-        name="startTime"
-        type="time"
-        placeholder="Start"
-        onChange={handleInput}
-        ></input>
-        <input
-        name="endTime"
-        type="time"
-        placeholder="End"
-        onChange={handleInput}
-        ></input>
-        <input
-        name="title"
-        type="text"
-        placeholder="Title"
-        onChange={handleInput}
-        ></input>
+
       </div>
+
       <div className="calendar" style={{display: "flex", flexDirection: "row"}}>
         {/* You can do most things with divs these days. */}
         <div className="calendar-labels">
@@ -88,7 +94,7 @@ function App() {
           {
             Array.from({length: 24}, (_,h) => {
               return (
-                <div key={h} onClick={() => prefillForm(h)} style={{height: "40px", border: "2px solid black", width:"40px"}}></div>
+                <div key={h} onClick={() => prefillNew(h)} style={{height: "40px", border: "2px solid black", width:"40px"}}></div>
               )
             })
           }
@@ -96,12 +102,10 @@ function App() {
         <div className="calendar-events-columns">
           {
             events.map((event, idx) => {
-              const eventHeight = 40*(event.end - event.start);
+              const eventHeight = 40 * (event.end - event.start);
               return (
-                <div key={idx} style={{height: eventHeight, border:"2px solid blue", width: "40px"}}>
-                  {event.name} :  {hourLabel(event.start)} - {hourLabel(event.end)}
-                </div>
-              );
+                <div key={idx} style={{height: eventHeight, border: "2px solid blue"}} onClick={() => prefillExisting(event)}>{event.name}</div>
+              )
             })
           }
         </div>
