@@ -19,3 +19,11 @@ code {
   align-items: center;
   justify-content: center;
 }
+
+.selection-grid-cell {
+  color: lightcyan;
+}
+
+.select-grid-cell:hover {
+  color: gray;
+}

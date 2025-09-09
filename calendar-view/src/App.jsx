@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 
 //we'll use useRef to keep track of IDs.
+import "./index.css";
 
 function App() {
   const options = {
@@ -16,11 +17,12 @@ function App() {
   const [formEnd, setFormEnd] = useState("");
   const [formName, setFormName] = useState("");
   const [editingId, setEditingId] = useState(null); 
-  var currIdRef = useRef(-1);
+  var currIdRef = useRef(0); //remember this is a post-increment.
 
   const hourLabel = (h) => {
+    if (!h || h==="") return "-";
     const suffix = h >= 12 ? "PM" : "AM";
-    const hour = h % 12 == 0 ? 12 : h % 12;
+    const hour = h % 12 === 0 ? 12 : h % 12;
     return `${hour}:00 ${suffix}`
   }
 
@@ -50,23 +52,23 @@ function App() {
       return;
     }
 
-    if (!editingId) {
+    if (editingId === null) {
       //we can get everything we need from our state variables.
-      const newEvent = {id: currIdRef++, start, end, name};
+      const newEvent = {id: currIdRef.current++, start, end, name};
       setEvents([...events, newEvent]);
     }
     //we have an existing Id, so update.
     else {
       const updatedEvents = events.map((event, idx) => {
-        //effectively overwrite. 
-        return editingId === idx ? {...event, start, end, name} : event
+        //effectively overwrite - compare with event ID as it can be different than idx!
+        return editingId === event.id ? {...event, start, end, name} : event
       });
       setEvents(updatedEvents);
     }
   }
 
   const deleteEvent = () => {
-    if (!editingId) throw new Error("No ID is specified!");
+    if (editingId === null) throw new Error("No ID is specified!");
     const updatedEvents = events.filter((event) => event.id !== editingId);
     setEvents(updatedEvents);
   }
@@ -77,8 +79,10 @@ function App() {
       <div className="inputs">
         <label>
           Start
-          <select onChange={(event) => setFormStart(event.target.value)}>
-            <option value={formStart}>-</option>
+          {/*When select value matches option value, that's how our select gets populated.*/}
+          <select value={formStart} onChange={(event) => setFormStart(event.target.value)}>
+            {/*Then this top selected value is what we'll be going with.*/}
+            <option value={formStart}>{hourLabel(formStart)}</option>
             {
               Array.from({length: 24}, (_,h) => {
                 return (
@@ -91,8 +95,9 @@ function App() {
 
         <label>
           End
-          <select onChange={(event) => setFormEnd(event.target.value)}>
-            <option value={formEnd}>-</option>
+          {/*When select value matches option value, that's how our select gets populated in the event of a change.*/}
+          <select value={formEnd} onChange={(event) => setFormEnd(event.target.value)}>
+            <option value={formEnd}>{hourLabel(formEnd)}</option>
             {
               Array.from({length: 24}, (_,h) => {
                 return (
@@ -113,11 +118,11 @@ function App() {
 
       </div>
       <div className="calendar" style={{display: "flex", flexDirection: "row"}}>
-        <div className="calendar-labels" style={{border:"1px solid red"}}>
+        <div className="calendar-labels" style={{border:"1px solid red", width:72}}>
           {
             Array.from({length: 24}, (_,h) => {
               return (
-                <div key={h}>{hourLabel(h)}</div>
+                <div key={h} style={{height: 60, width: 64}}>{hourLabel(h)}</div>
               )
             })
           }
@@ -127,7 +132,7 @@ function App() {
           {
             Array.from({length: 24}, (_,h) => {
               return (
-                <div key={h} onClick={() => prefillFormNew(h)} style={{ height: 40, border:"1px solid black" }}></div>
+                <div className="selection-grid-cell" key={h} onClick={() => prefillFormNew(h)} style={{ height: 40, border:"1px solid black", width: 64 }}></div>
               )
             })
           }
