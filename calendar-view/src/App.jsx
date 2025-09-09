@@ -1,110 +1,156 @@
-import { useEffect, useState } from 'react';
-import EventManager from './EventManager';
+import { useRef, useState } from 'react';
+
+//we'll use useRef to keep track of IDs.
 
 function App() {
-  //1. most important thing: our events: 
+  const options = {
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric"
+  }
+  const currentDate = (new Date()).toLocaleString("en-US", options);
+
   const [events, setEvents] = useState([]);
-  //4 things: formStart, formEnd, formName, editingId (current element we're editing).
   const [formStart, setFormStart] = useState("");
   const [formEnd, setFormEnd] = useState("");
   const [formName, setFormName] = useState("");
-  const [editingId, setEditingId] = useState(null); //not editing anything yet. 
+  const [editingId, setEditingId] = useState(null); 
+  var currIdRef = useRef(-1);
 
-  //const hourLabel:
-  //returns formatted label for our labels column.
-  //h can range from 0 to 23
   const hourLabel = (h) => {
-    const hourSuffix = h >= 12 ? "PM" : "AM";
-    const hourValue = h % 12 === 0 ? 12 : h % 12;
-    return `${hourValue} ${hourSuffix}`;
+    const suffix = h >= 12 ? "PM" : "AM";
+    const hour = h % 12 == 0 ? 12 : h % 12;
+    return `${hour}:00 ${suffix}`
   }
 
-  //for a potentially new entry that we're about to add. 
-  const prefillNew = (h) => {
-    setEditingId(null); //we aren't editing an existing event
-    setFormStart(h)
-    setFormEnd(h + 1 >= 24 ? 24 : h + 1); //one more hour above.
-    setFormName("");
+  //We'll prefill the form for a potential new entry :)
+  const prefillFormNew = (h) => {
+    setFormStart(h);
+    setFormEnd(h + 1 >= 24 ? 24 : h+1);
+    setFormName(""); //user hasn't chosen it yet.
+    setEditingId(null); //user hasn't created entry yet.
   }
 
-  const prefillExisting = (evt) => {
-    setEditingId(evt.id);
-    setFormStart(evt.start);
-    setFormEnd(evt.end);
-    setFormName(evt.name);
+  const prefillFormExisting = (event) => {
+    setFormStart(event.start);
+    setFormEnd(event.end);
+    setFormName(event.name);
+    setEditingId(event.id);
   }
 
-  //
-  const updateForm = (evt) => {
+  const saveEvent = () => {
+    //If editing ID is not specified, we're adding a new event. 
+    const start = parseInt(formStart);
+    const end = parseInt(formEnd);
+    const name = formName.trim();
 
-  }
+    //Error handling / data validation
+    if (isNaN(start) || isNaN(end) || !name) {
+      return;
+    }
 
-  const clearForm = () => {
-    setEditingId(null);
-    setFormStart("");
-    setFormEnd("");
-    setFormName("");
-  }
-
-  const updateEvent = (evt) => {
-
+    if (!editingId) {
+      //we can get everything we need from our state variables.
+      const newEvent = {id: currIdRef++, start, end, name};
+      setEvents([...events, newEvent]);
+    }
+    //we have an existing Id, so update.
+    else {
+      const updatedEvents = events.map((event, idx) => {
+        //effectively overwrite. 
+        return editingId === idx ? {...event, start, end, name} : event
+      });
+      setEvents(updatedEvents);
+    }
   }
 
   const deleteEvent = () => {
-
-  }
-
-  const today = new Date();
-  const options = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }
-  const formattedDate = today.toLocaleString("en-US", options);
-
-  function handleInput(event) {
-    //we can ascertain from which input it came from here. 
-    //event.target.value
+    if (!editingId) throw new Error("No ID is specified!");
+    const updatedEvents = events.filter((event) => event.id !== editingId);
+    setEvents(updatedEvents);
   }
 
   return (
     <div className="app">
-      {/*Presume we want today's date?*/}
-      {/*Todo: we need to address the form inputs here.*/}
-      <h1>{formattedDate}</h1>
-
+      <h1> Day {currentDate}</h1>
       <div className="inputs">
+        <label>
+          Start
+          <select onChange={(event) => setFormStart(event.target.value)}>
+            <option value={formStart}>-</option>
+            {
+              Array.from({length: 24}, (_,h) => {
+                return (
+                  <option key={h}>{hourLabel(h)}</option>
+                )
+              })
+            }
+          </select>
+        </label>
+
+        <label>
+          End
+          <select onChange={(event) => setFormEnd(event.target.value)}>
+            <option value={formEnd}>-</option>
+            {
+              Array.from({length: 24}, (_,h) => {
+                return (
+                  <option key={h}>{hourLabel(h)}</option>
+                )
+              })
+            }
+          </select>
+        </label>
+
+        <label>
+          Name
+          <input type="text" value={formName} onChange={(event) => setFormName(event.target.value)}></input>
+        </label>
+
+        <button onClick={() => saveEvent()}>Save</button> {/*This will be both edit and add*/}
+        {editingId !== null && <button onClick={() => deleteEvent()}>Delete</button>}
 
       </div>
-
       <div className="calendar" style={{display: "flex", flexDirection: "row"}}>
-        {/* You can do most things with divs these days. */}
-        <div className="calendar-labels">
+        <div className="calendar-labels" style={{border:"1px solid red"}}>
           {
             Array.from({length: 24}, (_,h) => {
               return (
-                <div key={h} style={{height: "40px", border:"2px solid gray"}}>
-                  {hourLabel(h)}
-                </div>
+                <div key={h}>{hourLabel(h)}</div>
               )
             })
           }
         </div>
-        <div className="calendar-selectable-columns">
+        <div className="calendar-selections" style={{position:"relative", border:"1px solid green"}}>
+          {/*Selection grid cells*/}
           {
             Array.from({length: 24}, (_,h) => {
               return (
-                <div key={h} onClick={() => prefillNew(h)} style={{height: "40px", border: "2px solid black", width:"40px"}}></div>
+                <div key={h} onClick={() => prefillFormNew(h)} style={{ height: 40, border:"1px solid black" }}></div>
               )
             })
           }
-        </div>
-        <div className="calendar-events-columns">
+
+          {/*Selection overlay cells on the events.*/}
           {
             events.map((event, idx) => {
-              const eventHeight = 40 * (event.end - event.start);
+              const eventSpan = 40 * (event.end - event.start);
               return (
-                <div key={idx} style={{height: eventHeight, border: "2px solid blue"}} onClick={() => prefillExisting(event)}>{event.name}</div>
+                <div 
+                key={idx} 
+                onClick={() => prefillFormExisting(event)}
+                style={{ 
+                  position: "absolute",
+                  top: 40 * event.start,
+                  left: 0,
+                  right: 0,
+                  height: eventSpan,
+                  border: "1px solid blue",
+                  width: 64
+                 }}>
+                  {event.name}
+                </div>
               )
             })
           }
